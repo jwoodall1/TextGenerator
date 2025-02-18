@@ -91,18 +91,18 @@
                 changed = false;
                 keys.forEach(key => {
                     const regex = new RegExp(`#${key}#`, "g"); // Find all instances of #key#
-                    if (regex.test(replaced)) {
+                    while (regex.test(replaced)) { // ✅ Ensure all instances are replaced before moving on
                         const randomChoice = window.grammar[key][Math.floor(Math.random() * window.grammar[key].length)];
                         
                         console.log(`Replacing #${key}# with:`, randomChoice); // ✅ Debug log
                         
-                        replaced = replaced.replace(regex, () => replaceGrammar(randomChoice)); // Recursive replacement
+                        replaced = replaced.replace(regex, randomChoice); // Directly replace the placeholder
                         changed = true;
                     }
                 });
             }
             
-            console.log("Final Sentence:", replaced); // ✅ Debug log
+            console.log("Final Expanded Sentence:", replaced); // ✅ Debug log
             return replaced;
         }
     </script>
