@@ -83,7 +83,7 @@
         function replaceGrammar(sentence) {
             let replaced = sentence;
             const keys = Object.keys(window.grammar);
-            
+
             console.log("Original Sentence:", sentence); // ✅ Debug log
 
             let changed = true;
@@ -91,13 +91,13 @@
                 changed = false;
                 keys.forEach(key => {
                     const regex = new RegExp(`#${key}#`, "g"); // Find all instances of #key#
-                    while (regex.test(replaced)) { // ✅ Ensure all instances are replaced before moving on
+                    if (regex.test(replaced)) { // ✅ Ensure replacements occur
                         const randomChoice = window.grammar[key][Math.floor(Math.random() * window.grammar[key].length)];
                         
                         console.log(`Replacing #${key}# with:`, randomChoice); // ✅ Debug log
                         
-                        replaced = replaced.replace(regex, () => replaceGrammar(randomChoice)); // ✅ Recursive replacement
-                        changed = true;
+                        replaced = replaced.replace(regex, randomChoice);
+                        changed = true; // Continue looping until no more placeholders exist
                     }
                 });
             }
