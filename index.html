@@ -71,7 +71,7 @@
                         return randomChoice(grammar[key]);
                     }
                     console.warn(`⚠️ Missing grammar key: ${key}`);
-                    return `UNKNOWN(${key})`; 
+                    return `MISSING(${key})`; 
                 });
                 iterations++;
             }
@@ -91,8 +91,12 @@
                 return;
             }
 
+            console.log("🎯 Picking template from 'origin':", grammarData.origin);
             const template = randomChoice(grammarData.origin);
+            console.log("📜 Selected Template:", template);
+
             const output = expandGrammar(template, grammarData);
+            console.log("✅ Final Expanded Text:", output);
 
             const paragraph = document.createElement("div");
             paragraph.className = "scrolling-text";
