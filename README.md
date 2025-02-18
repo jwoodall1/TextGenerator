@@ -34,11 +34,14 @@ The **Sci-Fy Text Generator** is a web-based project that dynamically creates sc
 - **`edited_categorized_words.json`**  
   The final usage JSON, updates original JSON to not include words with non-alphabetical characters.
 
-- **`extract_gutenberg_texts.py`**  
+- **`WebScrape.py`**  
   The Python script responsible for scraping Project Gutenberg’s Science Fiction and Fantasy Bookshelf. It downloads the book texts, cleans them by removing Gutenberg-specific headers and footers, and saves the cleaned texts for further processing.
 
-- **`generate_word_json.py`**  
+- **`JSON.py`**  
   The Python script that processes the cleaned Gutenberg texts. It tokenizes the texts, performs part-of-speech tagging to categorize words (nouns, verbs, adjectives, etc.), and outputs the results as a JSON file for use in the web-based story generator.
+
+- **`process_clean_words.py`**  
+  This Python script processes a JSON file containing categorized words and cleans each word by removing any non-alphabetic characters (except for hyphens). It is used to prepare a sanitized version of the JSON file for further processing in the project.
 
 ## How It Works
 
