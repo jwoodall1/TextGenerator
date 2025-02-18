@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Wars Style Tracery Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracery/0.1.1/tracery.min.js" defer></script>
+    <script src="https://raw.githubusercontent.com/galaxykate/tracery/master/js/tracery.min.js" defer></script>
     <style>
         body {
             background: black;
@@ -46,12 +46,13 @@
         let isGrammarLoaded = false;
 
         document.addEventListener("DOMContentLoaded", async function () {
-            if (typeof tracery === "undefined") {
-                console.error("Tracery.js failed to load. Check the script URL.");
-                document.querySelector("h2").innerText = "Error: Tracery.js did not load.";
-                return;
-            }
-            await fetchGrammar();
+    const interval = setInterval(() => {
+        if (typeof tracery !== "undefined") {
+            clearInterval(interval);
+            fetchGrammar(); // Fetch grammar only when Tracery is ready
+        }
+    }, 100); // Check every 100ms if Tracery is loaded
+});
         });
 
         async function fetchGrammar() {
@@ -89,4 +90,5 @@
     </script>
 </body>
 </html>
+
 
