@@ -61,7 +61,7 @@ The **Sci-Fy Text Generator** is a web-based project that dynamically creates sc
    A fixed `<div>` with a tiny white dot and multiple CSS `box-shadow` coordinates simulates a field of stars. A CSS animation moves these stars slightly upward, adding to the immersive space atmosphere.
 
 6. **dynamic visual or stylistic component:**
-  If you reload the page, the stars change their pattern.
+  If you reload the page, the stars change their pattern. There is also a formation of stars at the bottom of the page that form the first JSON derived word from the scrolling story.
 
 ## Recognitions
 
