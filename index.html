@@ -39,18 +39,31 @@
         }
     </style>
 </head>
-<body onclick="generateStory(event)">
+<body>
+    <h2>Click anywhere to generate a story...</h2>
     <script>
         let grammar;
+        let isGrammarLoaded = false;
 
         async function fetchGrammar() {
-            const response = await fetch('https://yourusername.github.io/repo/tracery_scifi_grammar.json'); // Update this with your actual GitHub Pages link
-            const grammarData = await response.json();
-            grammar = tracery.createGrammar(grammarData);
+            try {
+                const response = await fetch('https://yourusername.github.io/repo/tracery_scifi_grammar.json'); // Update with your GitHub Pages link
+                if (!response.ok) throw new Error('Failed to load grammar JSON');
+                const grammarData = await response.json();
+                grammar = tracery.createGrammar(grammarData);
+                isGrammarLoaded = true;
+                document.querySelector("h2").innerText = "Click anywhere to generate a Star Wars-style rolling story!";
+            } catch (error) {
+                console.error('Error loading JSON:', error);
+                document.querySelector("h2").innerText = "Error loading story generator. Please check the JSON file link.";
+            }
         }
 
         function generateStory(event) {
-            if (!grammar) return;
+            if (!isGrammarLoaded) {
+                alert("Story generator is still loading. Please wait a moment.");
+                return;
+            }
             
             const text = grammar.flatten("#origin#");
             const paragraph = document.createElement("div");
@@ -63,6 +76,7 @@
             setTimeout(() => paragraph.remove(), 10000); // Remove element after animation
         }
 
+        document.body.addEventListener("click", generateStory);
         fetchGrammar();
     </script>
 </body>
