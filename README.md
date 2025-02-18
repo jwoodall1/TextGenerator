@@ -40,7 +40,7 @@ The **Sci-Fy Text Generator** is a web-based project that dynamically creates sc
 - **`JSON.py`**  
   The Python script that processes the cleaned Gutenberg texts. It tokenizes the texts, performs part-of-speech tagging to categorize words (nouns, verbs, adjectives, etc.), and outputs the results as a JSON file for use in the web-based story generator.
 
-- **`process_clean_words.py`**  
+- **`JSONCleaner.py`**  
   This Python script processes a JSON file containing categorized words and cleans each word by removing any non-alphabetic characters (except for hyphens). It is used to prepare a sanitized version of the JSON file for further processing in the project.
 
 ## How It Works
