@@ -59,11 +59,7 @@ The header in the project includes:
 
 ## How to Use
 
-1. **Download or Clone the Repository:**  
-   Ensure that both `index.html` and `categorized_words.json` are in the same folder.
-
-2. **Open `index.html` in a Web Browser:**  
-   The project runs entirely in the browser.
+https://jwoodall1.github.io/TextGenerator/
 
 3. **Click Anywhere on the Screen:**  
    Each click generates a new story with the Star Wars–style scrolling effect.
@@ -74,4 +70,3 @@ This project is open source. You are free to modify and distribute it as needed.
 
 ---
 
-Enjoy generating your unique sci‑fi stories!
