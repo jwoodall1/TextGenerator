@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star Wars Style Tracery Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracery/0.1.1/tracery.min.js"></script>
+    <title>Star Wars Style Text Generator</title>
     <style>
         body {
             background: black;
@@ -54,18 +53,28 @@
             }
         }
 
+        function expandGrammar(text, grammar) {
+            if (!text) return "";
+            const pattern = /#(.*?)#/g;
+            return text.replace(pattern, (_, key) => {
+                if (grammar[key]) {
+                    return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
+                }
+                return `#${key}#`; // Preserve placeholders if key is missing
+            });
+        }
+
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
         async function generateText(event) {
             const grammarData = await loadGrammar();
             if (!grammarData) return;
 
-            // Create Tracery grammar
-            const grammar = tracery.createGrammar(grammarData);
-            grammar.addModifiers(tracery.baseEngModifiers); // Add default English modifiers (capitalize, a/an, etc.)
+            const template = randomChoice(grammarData.origin);
+            const output = expandGrammar(template, grammarData);
 
-            // Generate text using the origin rule
-            const output = grammar.flatten("#origin#");
-
-            // Create the scrolling paragraph
             const paragraph = document.createElement("div");
             paragraph.className = "scrolling-text";
             paragraph.style.position = "absolute";
@@ -78,11 +87,9 @@
             setTimeout(() => paragraph.style.opacity = '0', 10000);
         }
 
-        // Ensure Tracery is loaded before execution
         document.addEventListener("DOMContentLoaded", () => {
             document.body.addEventListener("click", generateText);
         });
     </script>
 </body>
 </html>
-
