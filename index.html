@@ -47,7 +47,7 @@
 
         async function fetchGrammar() {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/jwoodall1/TextGenerator/main/grammar.json'); 
+                const response = await fetch('https://raw.githubusercontent.com/jwoodall1/TextGenerator/main/grammar.json');
                 if (!response.ok) throw new Error('Failed to load grammar JSON');
                 const grammarData = await response.json();
                 grammar = tracery.createGrammar(grammarData);
@@ -76,8 +76,9 @@
             setTimeout(() => paragraph.remove(), 10000); // Remove element after animation
         }
 
+        document.addEventListener("DOMContentLoaded", fetchGrammar);
         document.body.addEventListener("click", generateStory);
-        fetchGrammar();
     </script>
 </body>
 </html>
+
