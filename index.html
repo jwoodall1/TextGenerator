@@ -268,7 +268,7 @@
       drawWordWithStars(wordToDraw);
     }
 
-    // Draw the given word on the canvas as a star pattern with a twinkling (shine back and forth) effect.
+    // Draw the given word on the canvas as a star pattern with a slower twinkling effect.
     function drawWordWithStars(word) {
       let canvas = document.getElementById("wordCanvas");
       let ctx = canvas.getContext("2d");
@@ -308,15 +308,15 @@
         }
       }
 
-      // Animate the star pattern.
+      // Animate the star pattern with a slower twinkle.
       let startTime = null;
       function animate(timestamp) {
         if (!startTime) startTime = timestamp;
         let elapsed = (timestamp - startTime) / 1000; // in seconds
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let star of stars) {
-          // Calculate an alpha value that oscillates over time.
-          let alpha = 0.5 + 0.5 * Math.sin(elapsed * 2 + star.phase);
+          // Calculate an alpha value that oscillates more slowly over time.
+          let alpha = 0.5 + 0.5 * Math.sin(elapsed * 1 + star.phase);
           ctx.fillStyle = `rgba(255, 255, 255, ${alpha.toFixed(2)})`;
           ctx.beginPath();
           ctx.arc(star.x, star.y, star.starSize, 0, Math.PI * 2);
@@ -334,3 +334,4 @@
   </script>
 </body>
 </html>
+
