@@ -46,10 +46,12 @@
                 const response = await fetch('grammar.json'); 
                 if (!response.ok) throw new Error("Failed to load grammar JSON");
                 const grammarData = await response.json();
-                console.log("Grammar loaded:", grammarData);
+                if (!grammarData.origin) throw new Error("Grammar JSON missing 'origin' category");
+                console.log("Grammar loaded successfully.");
                 return grammarData;
             } catch (error) {
                 console.error("Error loading JSON:", error);
+                alert("Failed to load story generator. Check grammar.json.");
                 return null;
             }
         }
@@ -57,16 +59,20 @@
         function expandGrammar(sentence, grammar) {
             let replaced = sentence;
             let pattern = /#(.*?)#/g;
-            let match;
+            let match, changed = true;
 
-            // Replace placeholders as long as they exist in the sentence
-            while ((match = replaced.match(pattern)) !== null) {
-                match.forEach(fullMatch => {
-                    const key = fullMatch.replace(/#/g, ''); // Extract key name
-                    if (grammar[key]) {
-                        replaced = replaced.replace(fullMatch, randomChoice(grammar[key]));
-                    }
-                });
+            // Loop to replace placeholders until none remain
+            while (changed) {
+                changed = false;
+                while ((match = replaced.match(pattern)) !== null) {
+                    match.forEach(fullMatch => {
+                        const key = fullMatch.replace(/#/g, '');
+                        if (grammar[key]) {
+                            replaced = replaced.replace(fullMatch, randomChoice(grammar[key]));
+                            changed = true;
+                        }
+                    });
+                }
             }
 
             return replaced;
@@ -96,6 +102,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            console.log("Page loaded, waiting for clicks...");
             document.body.addEventListener("click", generateText);
         });
     </script>
