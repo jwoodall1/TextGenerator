@@ -80,14 +80,17 @@
         function replaceGrammar(sentence) {
             let replaced = sentence;
             const keys = Object.keys(window.grammar);
+            
             let changed = true;
-
             while (changed) {
                 changed = false;
                 keys.forEach(key => {
-                    const regex = new RegExp(`#${key}#`, "g"); // Use regex to replace all instances
-                    if (replaced.match(regex)) {
-                        replaced = replaced.replace(regex, window.grammar[key][Math.floor(Math.random() * window.grammar[key].length)]);
+                    const regex = new RegExp(`#${key}#`, "g"); // Find all instances of #key#
+                    if (regex.test(replaced)) {
+                        replaced = replaced.replace(regex, () => {
+                            const randomChoice = window.grammar[key][Math.floor(Math.random() * window.grammar[key].length)];
+                            return replaceGrammar(randomChoice); // Recursively replace new placeholders
+                        });
                         changed = true;
                     }
                 });
@@ -98,4 +101,3 @@
     </script>
 </body>
 </html>
-
