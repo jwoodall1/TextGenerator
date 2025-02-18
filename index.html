@@ -147,7 +147,8 @@
       // Restart the animation: remove the animation property, force reflow, then add it back.
       crawlContent.style.animation = "none";
       void crawlContent.offsetWidth;
-      crawlContent.style.animation = "crawlAnimation 20s linear forwards";
+      // Increased duration to 40 seconds for slower scrolling
+      crawlContent.style.animation = "crawlAnimation 40s linear forwards";
     }
 
     // Trigger the story generation on any click anywhere on the screen.
@@ -155,4 +156,3 @@
   </script>
 </body>
 </html>
-
