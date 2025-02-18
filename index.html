@@ -24,6 +24,7 @@
             font-weight: bold;
             opacity: 1;
             animation: scroll-up 10s linear forwards;
+            transition: opacity 2s ease-out;
         }
         @keyframes scroll-up {
             0% {
@@ -42,7 +43,7 @@
     <script>
         async function loadGrammar() {
             try {
-                const response = await fetch('grammar.json'); // Ensure grammar.json is in the root of your GitHub Pages repo
+                const response = await fetch('grammar.json'); 
                 if (!response.ok) throw new Error("Failed to load grammar JSON");
                 const grammarData = await response.json();
                 console.log("Grammar loaded:", grammarData);
@@ -53,19 +54,22 @@
             }
         }
 
-        function expandGrammar(text, grammar) {
-            if (!text) return "";
-            const pattern = /#(.*?)#/g;
-            return text.replace(pattern, (_, key) => {
-                if (grammar[key]) {
-                    return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
-                }
-                return `#${key}#`; // Preserve placeholders if key is missing
-            });
-        }
+        function expandGrammar(sentence, grammar) {
+            let replaced = sentence;
+            let pattern = /#(.*?)#/g;
+            let match;
 
-        function randomChoice(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
+            // Replace placeholders as long as they exist in the sentence
+            while ((match = replaced.match(pattern)) !== null) {
+                match.forEach(fullMatch => {
+                    const key = fullMatch.replace(/#/g, ''); // Extract key name
+                    if (grammar[key]) {
+                        replaced = replaced.replace(fullMatch, randomChoice(grammar[key]));
+                    }
+                });
+            }
+
+            return replaced;
         }
 
         async function generateText(event) {
@@ -87,10 +91,13 @@
             setTimeout(() => paragraph.style.opacity = '0', 10000);
         }
 
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             document.body.addEventListener("click", generateText);
         });
     </script>
 </body>
 </html>
-
