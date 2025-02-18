@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Sci‑Fi Star Wars Intro Generator</title>
+  <title>Sci‑Fy Text Generator</title>
   <style>
     html, body {
       margin: 0;
@@ -12,6 +12,32 @@
       overflow: hidden;
       background: black;
       cursor: pointer;
+      color: #fefefe;
+      font-family: Arial, sans-serif;
+    }
+    /* Header styling */
+    header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      text-align: center;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+      color: #ffcc00;
+    }
+    header p {
+      margin: 5px 0;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+    header a {
+      color: #66ccff;
+      text-decoration: none;
     }
     /* Container for the crawl text */
     #crawl {
@@ -30,7 +56,6 @@
       line-height: 1.5;
       color: yellow;
       transform: rotateX(25deg);
-      /* Initial placement off the bottom of the screen */
       transform-origin: 50% 100%;
       animation: none;
     }
@@ -46,6 +71,18 @@
   </style>
 </head>
 <body>
+  <!-- Header Section -->
+  <header>
+    <h1>Sci‑Fy Text Generator</h1>
+    <p>
+      Original Texts from: <a href="https://www.gutenberg.org/ebooks/bookshelf/480" target="_blank">Project Gutenberg Bookshelf</a>
+    </p>
+    <p>
+      Author: Jonathan Woodall | Chatgpt o3 mini-high
+    </p>
+  </header>
+
+  <!-- Crawl Section -->
   <div id="crawl">
     <div id="crawlContent"></div>
   </div>
