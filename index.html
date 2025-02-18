@@ -45,7 +45,8 @@
         let grammar;
         let isGrammarLoaded = false;
 
-        document.addEventListener("DOMContentLoaded", async function () {
+        document.addEventListener("DOMContentLoaded", function () {
+    fetchGrammar();
             const interval = setInterval(() => {
                 if (typeof tracery !== "undefined") {
                     clearInterval(interval);
