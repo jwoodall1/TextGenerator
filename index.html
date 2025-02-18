@@ -57,10 +57,11 @@
             if (!text) return "";
             const pattern = /#(.*?)#/g;
             return text.replace(pattern, (_, key) => {
-                if (grammar[key]) {
-                    return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
+                if (grammar[key] && grammar[key].length > 0) {
+                    return randomChoice(grammar[key]);
                 }
-                return `#${key}#`; // Preserve placeholders if key is missing
+                console.warn(`Missing grammar key: ${key}`);
+                return key; // Keep the key visible instead of erasing it
             });
         }
 
@@ -93,4 +94,5 @@
     </script>
 </body>
 </html>
+
 
