@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Wars Style Tracery Generator</title>
@@ -54,14 +54,7 @@
 
         function expandGrammar(text, grammar) {
     if (!text) return "";
-    const pattern = /#(.*?)#/g;
-    
-    return text.replace(pattern, (_, key) => {
-        if (grammar[key]) {
-            return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
-        }
-        return `#${key}#`; // Preserve placeholders if key is missing
-    });
+    return text.replace(/#(.*?)#/g, (_, key) => grammar[key] ? expandGrammar(randomChoice(grammar[key]), grammar) : `#${key}#`);
             const pattern = /#(.*?)#/g;
             return text.replace(pattern, (_, key) => {
                 if (grammar[key]) {
@@ -90,7 +83,7 @@
             paragraph.innerText = output;
             document.body.appendChild(paragraph);
 
-            setTimeout(() => paragraph.remove(), 10000); // Remove element after animation
+            setTimeout(() => paragraph.style.opacity = '0', 10000); // Remove element after animation
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -99,4 +92,3 @@
     </script>
 </body>
 </html>
-
