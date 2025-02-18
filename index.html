@@ -96,15 +96,16 @@
                         
                         console.log(`Replacing #${key}# with:`, randomChoice); // ✅ Debug log
                         
-                        replaced = replaced.replace(regex, randomChoice); // Directly replace the placeholder
+                        replaced = replaced.replace(regex, () => replaceGrammar(randomChoice)); // ✅ Recursive replacement
                         changed = true;
                     }
                 });
             }
             
-            console.log("Final Expanded Sentence:", replaced); // ✅ Debug log
+            console.log("Final Fully Expanded Sentence:", replaced); // ✅ Debug log
             return replaced;
         }
     </script>
 </body>
 </html>
+
