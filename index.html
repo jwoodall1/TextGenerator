@@ -4,40 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Wars Style Tracery Generator</title>
-    <script src="https://raw.githubusercontent.com/galaxykate/tracery/master/js/tracery.min.js"></script>
-    <style>
-        body {
-            background: black;
-            color: yellow;
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            overflow: hidden;
-            height: 100vh;
-            cursor: pointer;
-        }
-        .scrolling-text {
-            position: absolute;
-            width: 80%;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            opacity: 0;
-            animation: scroll-up 10s linear forwards;
-        }
-        @keyframes scroll-up {
-            0% {
-                top: 100%;
-                opacity: 1;
-            }
-            100% {
-                top: -20%;
-                opacity: 0;
-            }
-        }
-    </style>
+    <script src="https://raw.githubusercontent.com/galaxykate/tracery/master/js/tracery.min.js" defer></script>
 </head>
 <body>
     <h2>Click anywhere to generate a story...</h2>
@@ -46,11 +13,10 @@
         let isGrammarLoaded = false;
 
         document.addEventListener("DOMContentLoaded", function () {
-    fetchGrammar();
             const interval = setInterval(() => {
                 if (typeof tracery !== "undefined") {
                     clearInterval(interval);
-                    fetchGrammar(); // Fetch grammar only when Tracery is ready
+                    fetchGrammar(); // Fetch JSON only when Tracery is ready
                 }
             }, 100); // Check every 100ms if Tracery is loaded
         });
