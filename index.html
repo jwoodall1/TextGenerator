@@ -1,118 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star Wars Style Text Generator</title>
-    <style>
-        body {
-            background: black;
-            color: yellow;
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            overflow: hidden;
-            height: 100vh;
-            cursor: pointer;
-        }
-        .scrolling-text {
-            position: absolute;
-            width: 80%;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            opacity: 1;
-            animation: scroll-up 10s linear forwards;
-            transition: opacity 2s ease-out;
-        }
-        @keyframes scroll-up {
-            0% {
-                top: 100%;
-                opacity: 1;
-            }
-            100% {
-                top: -20%;
-                opacity: 0;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Sci‑Fi Story Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #story { white-space: pre-wrap; margin-top: 20px; }
+    button { padding: 10px 20px; font-size: 16px; }
+  </style>
 </head>
 <body>
-    <h2>Click anywhere to generate a story...</h2>
-    <script>
-        async function loadGrammar() {
-            try {
-                const response = await fetch('horizontal_grammar.json'); 
-                if (!response.ok) throw new Error("Failed to load grammar JSON");
-                const grammarData = await response.json();
-                console.log("✅ Grammar Loaded Successfully:", grammarData);
+  <h1>Sci‑Fi Story Generator</h1>
+  <button id="generateBtn">Generate New Story</button>
+  <div id="story"></div>
 
-                if (!grammarData || Object.keys(grammarData).length === 0) {
-                    throw new Error("Grammar JSON is empty or malformed");
-                }
+  <script>
+    // Categorized words JSON (expand with more words as needed)
+    const wordsDict = {
+      nouns: ["planet", "star", "ship", "galaxy", "nebula", "asteroid", "satellite", "comet"],
+      proper_nouns: ["Nova", "Orion", "Celeste", "Andromeda", "Zephyr", "Luna", "Cosmos"],
+      verbs: ["drifts", "collides", "orbits", "vanishes", "emerges", "ascends", "descends", "pulsates"],
+      adjectives: ["mysterious", "radiant", "ancient", "luminous", "ethereal", "celestial", "vivid", "enigmatic"],
+      adverbs: ["silently", "swiftly", "gracefully", "unexpectedly", "solemnly", "quietly", "boldly"],
+      characters: ["Captain Nova", "Commander Orion", "Dr. Celeste", "Admiral Andromeda", "Pilot Zephyr"]
+    };
 
-                return grammarData;
-            } catch (error) {
-                console.error("❌ Error loading JSON:", error);
-                return null;
+    // A large collection of sci‑fi themed paragraph templates grouped by style
+    const storyTemplates = {
+      narrative: [
+        "In the #adjectives# reaches of the cosmos, a lone #nouns# #verbs# silently. #proper_nouns.capitalize# watched from afar, pondering the mysteries of the #adjectives# void.",
+        "Drifting through a sea of #adjectives# stars, the #nouns# #verbs# as if searching for an elusive truth. Meanwhile, #proper_nouns# #verbs# with quiet resolve."
+      ],
+      descriptive: [
+        "The galaxy shimmered in #adjectives# hues as #nouns# and #nouns# mingled in the #adjectives# light. Every corner of space revealed a new facet of the #nouns#.",
+        "Amid the #adjectives# nebulae, a field of #nouns# stretched endlessly, each emitting a glow of #adjectives# brilliance."
+      ],
+      dialogue: [
+        "\"#proper_nouns.capitalize#, do you see how the #nouns# #verbs# beyond the horizon?\" whispered a voice in the void.",
+        "\"The #nouns# have #verbs# once again,\" declared #proper_nouns#, \"and our destiny is now entwined with the #adjectives# currents of space.\""
+      ],
+      action: [
+        "Without warning, the #nouns# #verbs# into motion, igniting a chain reaction among the #adjectives# satellites.",
+        "In a burst of energy, the #nouns# #verbs#, scattering debris across the #adjectives# expanse."
+      ],
+      mysterious: [
+        "A shadow moved where the light of the #adjectives# stars could not reach—as if a secret #nouns# was #verbs# in the dark.",
+        "Deep in the #adjectives# void, an unknown #nouns# #verbs# with eerie precision, leaving #proper_nouns# perplexed."
+      ],
+      philosophical: [
+        "What is a #nouns# but a fragment of the infinite? In the #adjectives# tapestry of space, even a #nouns# holds a universe of meaning.",
+        "#proper_nouns.capitalize# mused, \"Every #nouns# is a story, bound by the #adjectives# laws of existence.\""
+      ],
+      epic: [
+        "Across the #adjectives# expanse, a mighty #nouns# #verbs# towards destiny, heralding an age of #adjectives# wonders.",
+        "In a clash of #nouns# and #nouns#, the cosmos trembled as #proper_nouns# led the charge with an #adjectives# spirit."
+      ],
+      cosmic: [
+        "The universe unfolded like a #adjectives# scroll, where every #nouns# and #nouns# played its part in the #adjectives# drama of existence.",
+        "Amid swirling clouds of #adjectives# stardust, the #nouns# #verbs#—a silent ode to the mystery of creation."
+      ],
+      melancholy: [
+        "In the cold vacuum, a solitary #nouns# #verbs# while memories of a #adjectives# past echoed in the void.",
+        "A #adjectives# sorrow pervaded space, as the #nouns# #verbs# with a heavy heart, leaving #proper_nouns# to ponder lost dreams."
+      ]
+    };
+
+    // Utility function: get a random element from an array
+    function randomChoice(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // Replace placeholders in the form #category# or #category.transformation#
+    function replacePlaceholders(template, words) {
+      return template.replace(/#([a-zA-Z_]+)(?:\.([a-zA-Z_]+))?#/g, (match, category, transformation) => {
+        if (words[category] && words[category].length > 0) {
+          let word = randomChoice(words[category]);
+          if (transformation) {
+            if (transformation === "capitalize") {
+              word = word.charAt(0).toUpperCase() + word.slice(1);
+            } else if (transformation === "upper") {
+              word = word.toUpperCase();
+            } else if (transformation === "lower") {
+              word = word.toLowerCase();
             }
+          }
+          return word;
         }
+        return match; // if category not found, return the placeholder unchanged
+      });
+    }
 
-        function expandGrammar(text, grammar) {
-            let result = text;
-            const pattern = /#(.*?)#/g;
-            let iterations = 0;
-            const maxIterations = 20;
-            
-            while (pattern.test(result) && iterations < maxIterations) {
-                result = result.replace(pattern, (_, key) => {
-                    if (grammar[key] && grammar[key].length > 0) {
-                        return randomChoice(grammar[key]);
-                    }
-                    console.warn(`⚠️ Missing grammar key: ${key}`);
-                    return `MISSING(${key})`; 
-                });
-                iterations++;
-            }
-            return result;
-        }
+    // Generate a story by selecting a number of random paragraphs from different styles
+    function generateStory(words, templates, numParagraphs = 8) {
+      const paragraphs = [];
+      const availableStyles = Object.keys(templates);
+      for (let i = 0; i < numParagraphs; i++) {
+        const style = randomChoice(availableStyles);
+        const template = randomChoice(templates[style]);
+        const paragraph = replacePlaceholders(template, words);
+        paragraphs.push(paragraph);
+      }
+      return paragraphs.join("\n\n");
+    }
 
-        function randomChoice(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        async function generateText(event) {
-            const grammarData = await loadGrammar();
-            if (!grammarData) return;
-
-            if (!grammarData.origin || grammarData.origin.length === 0) {
-                console.error("❌ Error: 'origin' category missing in JSON");
-                return;
-            }
-
-            console.log("🎯 Picking template from 'origin':", grammarData.origin);
-            const template = randomChoice(grammarData.origin);
-            console.log("📜 Selected Template:", template);
-
-            const output = expandGrammar(template, grammarData);
-            console.log("✅ Final Expanded Text:", output);
-
-            const paragraph = document.createElement("div");
-            paragraph.className = "scrolling-text";
-            paragraph.style.position = "absolute";
-            paragraph.style.left = `${event.clientX}px`;
-            paragraph.style.top = `${event.clientY}px`;
-            paragraph.innerText = output;
-            document.body.appendChild(paragraph);
-
-            setTimeout(() => paragraph.style.opacity = '0', 10000);
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            console.log("✅ Page Loaded, Waiting for Click...");
-            document.body.addEventListener("click", generateText);
-        });
-    </script>
+    // Set up event listener for the button
+    document.getElementById("generateBtn").addEventListener("click", () => {
+      const story = generateStory(wordsDict, storyTemplates, 8);
+      document.getElementById("story").textContent = story;
+    });
+  </script>
 </body>
 </html>
+
