@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Wars Style Tracery Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracery/0.1.1/tracery.min.js"></script>
     <style>
         body {
             background: black;
@@ -44,37 +45,27 @@
             try {
                 const response = await fetch('grammar.json'); // Ensure grammar.json is in the root of your GitHub Pages repo
                 if (!response.ok) throw new Error("Failed to load grammar JSON");
-                const grammar = await response.json();
-                return grammar;
+                const grammarData = await response.json();
+                console.log("Grammar loaded:", grammarData);
+                return grammarData;
             } catch (error) {
                 console.error("Error loading JSON:", error);
                 return null;
             }
         }
 
-        function expandGrammar(text, grammar) {
-    if (!text) return "";
-    return text.replace(/#(.*?)#/g, (_, key) => grammar[key] ? expandGrammar(randomChoice(grammar[key]), grammar) : `#${key}#`);
-            const pattern = /#(.*?)#/g;
-            return text.replace(pattern, (_, key) => {
-                if (grammar[key]) {
-                    return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
-                }
-                return ""; // Remove missing placeholders
-            });
-        }
-
-        function randomChoice(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
         async function generateText(event) {
-            const grammar = await loadGrammar();
-            if (!grammar) return; // Stop if grammar failed to load
+            const grammarData = await loadGrammar();
+            if (!grammarData) return;
 
-            const template = randomChoice(grammar.origin);
-            const output = expandGrammar(template, grammar).replace(/[^a-zA-Z0-9.,'"!?\s]/g, ""); // Remove non-standard characters
+            // Create Tracery grammar
+            const grammar = tracery.createGrammar(grammarData);
+            grammar.addModifiers(tracery.baseEngModifiers); // Add default English modifiers (capitalize, a/an, etc.)
 
+            // Generate text using the origin rule
+            const output = grammar.flatten("#origin#");
+
+            // Create the scrolling paragraph
             const paragraph = document.createElement("div");
             paragraph.className = "scrolling-text";
             paragraph.style.position = "absolute";
@@ -83,9 +74,11 @@
             paragraph.innerText = output;
             document.body.appendChild(paragraph);
 
-            setTimeout(() => paragraph.style.opacity = '0', 10000); // Remove element after animation
+            // Fade out the text over time
+            setTimeout(() => paragraph.style.opacity = '0', 10000);
         }
 
+        // Ensure Tracery is loaded before execution
         document.addEventListener("DOMContentLoaded", () => {
             document.body.addEventListener("click", generateText);
         });
