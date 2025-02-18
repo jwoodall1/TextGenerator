@@ -31,6 +31,15 @@ The **Sci-Fy Text Generator** is a web-based project that dynamically creates sc
 - **`categorized_words.json`**  
   An external JSON file containing categorized word lists (e.g., nouns, proper nouns, verbs, adjectives, adverbs, characters). These words are used to fill in the placeholders within the story templates. This file must be located in the same directory as `index.html`.
 
+- **`edited_categorized_words.json`**  
+  The final usage JSON, updates original JSON to not include words with non-alphabetical characters.
+
+- **`extract_gutenberg_texts.py`**  
+  The Python script responsible for scraping Project Gutenberg’s Science Fiction and Fantasy Bookshelf. It downloads the book texts, cleans them by removing Gutenberg-specific headers and footers, and saves the cleaned texts for further processing.
+
+- **`generate_word_json.py`**  
+  The Python script that processes the cleaned Gutenberg texts. It tokenizes the texts, performs part-of-speech tagging to categorize words (nouns, verbs, adjectives, etc.), and outputs the results as a JSON file for use in the web-based story generator.
+
 ## How It Works
 
 1. **Loading Word Categories:**  
