@@ -40,10 +40,10 @@
 <body>
   <h2>Click anywhere to generate a story...</h2>
   <script>
-    // Global variable to store the grammar once loaded.
+    // Global variable to store the grammar.
     let grammarData = null;
 
-    // Load the grammar JSON once when the page loads.
+    // Load the grammar JSON once on page load.
     async function loadGrammar() {
       try {
         const response = await fetch('grammar.json'); // Ensure grammar.json is in your repo’s root.
@@ -57,27 +57,28 @@
       }
     }
 
-    // Expand a string using a loop so that all tracery-style placeholders (e.g., #key#) are replaced.
+    // Returns a random element from an array.
+    function randomChoice(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // Iteratively expand all tokens (e.g., #character#) in the text.
     function expandGrammar(text, grammar) {
       let result = text;
       const pattern = /#(.*?)#/g;
-      // Keep replacing until no tokens remain.
-      while (pattern.test(result)) {
+      let iteration = 0;
+      const maxIterations = 20; // safeguard against infinite loops
+      while (pattern.test(result) && iteration < maxIterations) {
         result = result.replace(pattern, (match, key) => {
           if (grammar[key]) {
-            // Recursively expand the randomly chosen entry.
-            return expandGrammar(randomChoice(grammar[key]), grammar);
+            return randomChoice(grammar[key]);
           }
-          // If key is missing, leave the placeholder intact.
+          // Leave token unchanged if key is missing.
           return match;
         });
+        iteration++;
       }
       return result;
-    }
-
-    // Selects a random element from an array.
-    function randomChoice(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
     }
 
     // Generate and display the text at the click location.
@@ -90,7 +91,7 @@
       const template = randomChoice(grammarData.origin);
       const output = expandGrammar(template, grammarData);
       
-      // Create a div for the generated text.
+      // Create a div element for the generated text.
       const paragraph = document.createElement("div");
       paragraph.className = "scrolling-text";
       paragraph.style.left = `${event.clientX}px`;
@@ -98,13 +99,13 @@
       paragraph.innerText = output;
       document.body.appendChild(paragraph);
       
-      // Remove the element after the animation (10 seconds).
+      // Remove the element after the animation completes (10 seconds).
       setTimeout(() => {
         paragraph.remove();
       }, 10000);
     }
 
-    // Once the DOM is ready, load the grammar and set up the click handler.
+    // Load the grammar once the DOM is ready and attach the click handler.
     document.addEventListener("DOMContentLoaded", async () => {
       grammarData = await loadGrammar();
       if (!grammarData) {
