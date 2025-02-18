@@ -17,13 +17,12 @@
         .scrolling-text {
             position: absolute;
             width: 80%;
-            top: 100%;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
             font-size: 24px;
             font-weight: bold;
-            opacity: 0;
+            opacity: 1;
             animation: scroll-up 10s linear forwards;
         }
         @keyframes scroll-up {
@@ -39,10 +38,7 @@
     </style>
 </head>
 <body>
-    <h2>Click the button to generate a story...</h2>
-    <button id="generate-btn">Generate Story</button>
-    <div id="output" class="scrolling-text"></div>
-
+    <h2>Click anywhere to generate a story...</h2>
     <script>
         async function loadGrammar() {
             try {
@@ -57,12 +53,13 @@
         }
 
         function expandGrammar(text, grammar) {
+            if (!text) return "";
             const pattern = /#(.*?)#/g;
             return text.replace(pattern, (_, key) => {
                 if (grammar[key]) {
                     return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
                 }
-                return `#${key}#`; // Leave untouched if key is missing
+                return ""; // Remove missing placeholders
             });
         }
 
@@ -70,35 +67,28 @@
             return arr[Math.floor(Math.random() * arr.length)];
         }
 
-        async function generateText() {
+        async function generateText(event) {
             const grammar = await loadGrammar();
             if (!grammar) return; // Stop if grammar failed to load
 
             const template = randomChoice(grammar.origin);
-            const output = expandGrammar(template, grammar);
+            const output = expandGrammar(template, grammar).replace(/[^a-zA-Z0-9.,'"!?\s]/g, ""); // Remove non-standard characters
 
-            const crawlDiv = document.getElementById("output");
-            
-            // Reset animation
-            crawlDiv.style.animation = "none";
-            crawlDiv.offsetHeight; // Trigger reflow to restart animation
-            crawlDiv.style.animation = "crawl 10s linear";
+            const paragraph = document.createElement("div");
+            paragraph.className = "scrolling-text";
+            paragraph.style.position = "absolute";
+            paragraph.style.left = `${event.clientX}px`;
+            paragraph.style.top = `${event.clientY}px`;
+            paragraph.innerText = output;
+            document.body.appendChild(paragraph);
 
-            // Insert new text with spacing for readability
-            crawlDiv.innerHTML = output.replace(/\. /g, ".<br><br>");
+            setTimeout(() => paragraph.remove(), 10000); // Remove element after animation
         }
 
-        // Wait for the page to load before attaching the button event listener
         document.addEventListener("DOMContentLoaded", () => {
-            const generateButton = document.getElementById("generate-btn");
-            if (generateButton) {
-                generateButton.addEventListener("click", generateText);
-            } else {
-                console.error("Error: Button with ID 'generate-btn' not found.");
-            }
+            document.body.addEventListener("click", generateText);
         });
     </script>
 </body>
 </html>
-
 
