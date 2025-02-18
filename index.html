@@ -24,6 +24,7 @@
             font-weight: bold;
             opacity: 1;
             animation: scroll-up 10s linear forwards;
+            transition: opacity 2s ease-out;
         }
         @keyframes scroll-up {
             0% {
@@ -42,27 +43,39 @@
     <script>
         async function loadGrammar() {
             try {
-                const response = await fetch('horizontal_grammar.json'); // Ensure grammar.json is in the root of your GitHub Pages repo
+                const response = await fetch('horizontal_grammar.json'); 
                 if (!response.ok) throw new Error("Failed to load grammar JSON");
                 const grammarData = await response.json();
-                console.log("Grammar loaded:", grammarData);
+                console.log("✅ Grammar Loaded Successfully:", grammarData);
+
+                if (!grammarData || Object.keys(grammarData).length === 0) {
+                    throw new Error("Grammar JSON is empty or malformed");
+                }
+
                 return grammarData;
             } catch (error) {
-                console.error("Error loading JSON:", error);
+                console.error("❌ Error loading JSON:", error);
                 return null;
             }
         }
 
         function expandGrammar(text, grammar) {
-            if (!text) return "";
+            let result = text;
             const pattern = /#(.*?)#/g;
-            return text.replace(pattern, (_, key) => {
-                if (grammar[key] && grammar[key].length > 0) {
-                    return randomChoice(grammar[key]);
-                }
-                console.warn(`Missing grammar key: ${key}`);
-                return key; // Keep the key visible instead of erasing it
-            });
+            let iterations = 0;
+            const maxIterations = 20;
+            
+            while (pattern.test(result) && iterations < maxIterations) {
+                result = result.replace(pattern, (_, key) => {
+                    if (grammar[key] && grammar[key].length > 0) {
+                        return randomChoice(grammar[key]);
+                    }
+                    console.warn(`⚠️ Missing grammar key: ${key}`);
+                    return `UNKNOWN(${key})`; 
+                });
+                iterations++;
+            }
+            return result;
         }
 
         function randomChoice(arr) {
@@ -72,6 +85,11 @@
         async function generateText(event) {
             const grammarData = await loadGrammar();
             if (!grammarData) return;
+
+            if (!grammarData.origin || grammarData.origin.length === 0) {
+                console.error("❌ Error: 'origin' category missing in JSON");
+                return;
+            }
 
             const template = randomChoice(grammarData.origin);
             const output = expandGrammar(template, grammarData);
@@ -84,15 +102,13 @@
             paragraph.innerText = output;
             document.body.appendChild(paragraph);
 
-            // Fade out the text over time
             setTimeout(() => paragraph.style.opacity = '0', 10000);
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            console.log("✅ Page Loaded, Waiting for Click...");
             document.body.addEventListener("click", generateText);
         });
     </script>
 </body>
 </html>
-
-
