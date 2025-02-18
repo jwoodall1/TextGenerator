@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Wars Style Tracery Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracery/0.1.1/tracery.min.js"></script>
+    <style>
+        body {
+            background: black;
+            color: yellow;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            overflow: hidden;
+            height: 100vh;
+            cursor: pointer;
+        }
+        .scrolling-text {
+            position: absolute;
+            width: 80%;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0;
+            animation: scroll-up 10s linear forwards;
+        }
+        @keyframes scroll-up {
+            0% {
+                top: 100%;
+                opacity: 1;
+            }
+            100% {
+                top: -20%;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body onclick="generateStory(event)">
+    <script>
+        let grammar;
+
+        async function fetchGrammar() {
+            const response = await fetch('https://yourusername.github.io/repo/tracery_scifi_grammar.json'); // Update this with your actual GitHub Pages link
+            const grammarData = await response.json();
+            grammar = tracery.createGrammar(grammarData);
+        }
+
+        function generateStory(event) {
+            if (!grammar) return;
+            
+            const text = grammar.flatten("#origin#");
+            const paragraph = document.createElement("div");
+            paragraph.className = "scrolling-text";
+            paragraph.style.left = `${event.clientX}px`;
+            paragraph.style.top = `${event.clientY}px`;
+            paragraph.innerText = text;
+            document.body.appendChild(paragraph);
+
+            setTimeout(() => paragraph.remove(), 10000); // Remove element after animation
+        }
+
+        fetchGrammar();
+    </script>
+</body>
+</html>
