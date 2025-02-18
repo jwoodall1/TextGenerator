@@ -1,124 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Star Wars Style Text Generator</title>
-  <style>
-    body {
-      background: black;
-      color: yellow;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      overflow: hidden;
-      height: 100vh;
-      cursor: pointer;
-    }
-    .scrolling-text {
-      position: absolute;
-      width: 80%;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      opacity: 1;
-      animation: scroll-up 10s linear forwards;
-    }
-    @keyframes scroll-up {
-      0% {
-        top: 100%;
-        opacity: 1;
-      }
-      100% {
-        top: -20%;
-        opacity: 0;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Wars Style Text Generator</title>
+    <style>
+        body {
+            background: black;
+            color: yellow;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            overflow: hidden;
+            height: 100vh;
+            cursor: pointer;
+        }
+        .scrolling-text {
+            position: absolute;
+            width: 80%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 1;
+            animation: scroll-up 10s linear forwards;
+        }
+        @keyframes scroll-up {
+            0% {
+                top: 100%;
+                opacity: 1;
+            }
+            100% {
+                top: -20%;
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>Click anywhere to generate a story...</h2>
-  <!--
-    If your CSP is very strict about inline scripts, move the code below into an external file (e.g., app.js)
-    and reference it in a script tag with a proper nonce.
-  -->
-  <script>
-    // Global variable for storing the grammar data.
-    let grammarData = null;
+    <h2>Click anywhere to generate a story...</h2>
+    <script>
+        async function loadGrammar() {
+            try {
+                const response = await fetch('horizontal_grammar.json'); // Ensure grammar.json is in the root of your GitHub Pages repo
+                if (!response.ok) throw new Error("Failed to load grammar JSON");
+                const grammarData = await response.json();
+                console.log("Grammar loaded:", grammarData);
+                return grammarData;
+            } catch (error) {
+                console.error("Error loading JSON:", error);
+                return null;
+            }
+        }
 
-    // Load grammar JSON once.
-    async function loadGrammar() {
-      try {
-        const response = await fetch('grammar.json');
-        if (!response.ok) throw new Error("Failed to load grammar JSON");
-        const data = await response.json();
-        console.log("Grammar loaded:", data);
-        return data;
-      } catch (error) {
-        console.error("Error loading JSON:", error);
-        return null;
-      }
-    }
+        function expandGrammar(text, grammar) {
+            if (!text) return "";
+            const pattern = /#(.*?)#/g;
+            return text.replace(pattern, (_, key) => {
+                if (grammar[key]) {
+                    return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
+                }
+                return `#${key}#`; // Preserve placeholders if key is missing
+            });
+        }
 
-    // Return a random element from an array.
-    function randomChoice(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
 
-    // Iteratively replace placeholders in the text.
-    function expandGrammar(text, grammar) {
-      let result = text;
-      const pattern = /#(.*?)#/g;
-      let iterations = 0;
-      const maxIterations = 20; // safeguard against infinite loops
-      while (pattern.test(result) && iterations < maxIterations) {
-        result = result.replace(pattern, (match, key) => {
-          // If the key exists in the grammar, replace with a random selection.
-          if (grammar[key]) {
-            return randomChoice(grammar[key]);
-          }
-          // Otherwise, leave the placeholder intact.
-          return match;
+        async function generateText(event) {
+            const grammarData = await loadGrammar();
+            if (!grammarData) return;
+
+            const template = randomChoice(grammarData.origin);
+            const output = expandGrammar(template, grammarData);
+
+            const paragraph = document.createElement("div");
+            paragraph.className = "scrolling-text";
+            paragraph.style.position = "absolute";
+            paragraph.style.left = `${event.clientX}px`;
+            paragraph.style.top = `${event.clientY}px`;
+            paragraph.innerText = output;
+            document.body.appendChild(paragraph);
+
+            // Fade out the text over time
+            setTimeout(() => paragraph.style.opacity = '0', 10000);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.addEventListener("click", generateText);
         });
-        iterations++;
-      }
-      return result;
-    }
-
-    // Generate and display the text at the click location.
-    function generateText(event) {
-      if (!grammarData) {
-        console.error("Grammar not loaded.");
-        return;
-      }
-      // Pick a random template from the "origin" category.
-      const template = randomChoice(grammarData.origin);
-      const output = expandGrammar(template, grammarData);
-
-      // Create and style the text element.
-      const paragraph = document.createElement("div");
-      paragraph.className = "scrolling-text";
-      paragraph.style.left = `${event.clientX}px`;
-      paragraph.style.top = `${event.clientY}px`;
-      paragraph.innerText = output;
-      document.body.appendChild(paragraph);
-
-      // Remove the element after the animation ends (10 seconds).
-      setTimeout(() => {
-        paragraph.remove();
-      }, 10000);
-    }
-
-    // Once the DOM is loaded, fetch the grammar and set up the click handler.
-    document.addEventListener("DOMContentLoaded", async () => {
-      grammarData = await loadGrammar();
-      if (!grammarData) {
-        document.body.innerHTML = "<h2>Failed to load grammar.</h2>";
-        return;
-      }
-      document.body.addEventListener("click", generateText);
-    });
-  </script>
+    </script>
 </body>
 </html>
+
