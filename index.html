@@ -85,8 +85,9 @@
             while (changed) {
                 changed = false;
                 keys.forEach(key => {
-                    if (replaced.includes(`#${key}#`)) {
-                        replaced = replaced.replace(`#${key}#`, window.grammar[key][Math.floor(Math.random() * window.grammar[key].length)]);
+                    const regex = new RegExp(`#${key}#`, "g"); // Use regex to replace all instances
+                    if (replaced.match(regex)) {
+                        replaced = replaced.replace(regex, window.grammar[key][Math.floor(Math.random() * window.grammar[key].length)]);
                         changed = true;
                     }
                 });
@@ -97,3 +98,4 @@
     </script>
 </body>
 </html>
+
