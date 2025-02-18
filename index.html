@@ -48,7 +48,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 0; /* Updated from -1 so stars show up */
+      z-index: 0;
     }
     .star {
       position: absolute;
@@ -64,7 +64,7 @@
     /* Container for the crawl text */
     #crawl {
       position: absolute;
-      bottom: 0;
+      bottom: 150px; /* Leave space for the word canvas */
       width: 100%;
       perspective: 400px;
       z-index: 5;
@@ -81,6 +81,16 @@
       transform: rotateX(25deg);
       transform-origin: 50% 100%;
       animation: none;
+    }
+    /* Canvas to display the star-formed word at the bottom */
+    #wordCanvas {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 150px;
+      z-index: 8;
+      background: transparent;
     }
     /* Star Wars–style crawl animation */
     @keyframes crawlAnimation {
@@ -112,42 +122,45 @@
   <div id="crawl">
     <div id="crawlContent"></div>
   </div>
+  
+  <!-- Canvas for word formed by stars -->
+  <canvas id="wordCanvas"></canvas>
 
   <script>
-    // Wait until the DOM content is loaded before creating the starfield.
+    // Wait until DOM content is loaded to create the initial starfield.
     document.addEventListener('DOMContentLoaded', () => {
-      createStarfield(150); // Create 150 stars for a richer starfield
+      createStarfield(150); // Create an initial starfield with 150 stars.
     });
 
     // Create a starfield by generating many star elements within the #starfield div.
     function createStarfield(numStars) {
       const starfield = document.getElementById('starfield');
+      // Clear any existing stars.
+      starfield.innerHTML = "";
       for (let i = 0; i < numStars; i++) {
         let star = document.createElement('div');
         star.className = 'star';
-        // Position stars randomly across the viewport using vw and vh units.
+        // Position stars randomly using viewport units.
         star.style.left = Math.random() * 100 + 'vw';
         star.style.top = Math.random() * 100 + 'vh';
-        // Set a random size between 1px and 3px.
+        // Random size between 1px and 3px.
         let size = Math.random() * 2 + 1;
         star.style.width = size + 'px';
         star.style.height = size + 'px';
-        // Add a random animation delay for a natural twinkle effect.
+        // Random animation delay.
         star.style.animationDelay = Math.random() * 5 + 's';
         starfield.appendChild(star);
       }
     }
 
-    // Global variable to hold the word categories loaded from JSON.
+    // Global variable to hold word categories loaded from JSON.
     let wordsDict = null;
 
-    // Load the categorized words from the external JSON file.
-    // Make sure the file 'edited_categorized_words.json' is in the same directory.
+    // Load categorized words from external JSON.
     fetch('edited_categorized_words.json')
       .then(response => response.json())
       .then(data => {
         wordsDict = data;
-        // Display an initial story once the words have loaded.
         displayStory();
       })
       .catch(error => console.error('Error loading JSON:', error));
@@ -197,7 +210,7 @@
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    // Replace placeholders in the form #category# or #category.transformation#
+    // Replace placeholders (e.g., #nouns# or #proper_nouns.capitalize#) with random words.
     function replacePlaceholders(template, words) {
       return template.replace(/#([a-zA-Z_]+)(?:\.([a-zA-Z_]+))?#/g, (match, category, transformation) => {
         if (words[category] && words[category].length > 0) {
@@ -217,7 +230,7 @@
       });
     }
 
-    // Generate a story by randomly picking paragraphs from various styles.
+    // Generate a story from random templates.
     function generateStory(words, templates, numParagraphs = 8) {
       const paragraphs = [];
       const availableStyles = Object.keys(templates);
@@ -230,25 +243,75 @@
       return paragraphs.join("\n\n");
     }
 
-    // Generate and display the story with the crawl animation.
+    // Display the generated story and update the word canvas.
     function displayStory() {
-      // Ensure the JSON has been loaded.
       if (!wordsDict) return;
       const story = generateStory(wordsDict, storyTemplates, 8);
       const crawlContent = document.getElementById("crawlContent");
       crawlContent.innerText = story;
-      // Restart the animation: remove the animation property, force reflow, then add it back.
       crawlContent.style.animation = "none";
       void crawlContent.offsetWidth;
-      // Increased duration to 40 seconds for slower scrolling.
       crawlContent.style.animation = "crawlAnimation 40s linear forwards";
+      
+      // Extract the first word from the "nouns" category to form the star shape.
+      let starWord = "";
+      if (wordsDict.nouns && wordsDict.nouns.length > 0) {
+        starWord = wordsDict.nouns[0];
+      }
+      drawWordWithStars(starWord);
     }
 
-    // Trigger the story generation on any click anywhere on the screen.
+    // Draw the given word on the canvas as a star pattern.
+    function drawWordWithStars(word) {
+      let canvas = document.getElementById("wordCanvas");
+      let ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = 150;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Set font for the offscreen canvas.
+      let fontSize = 120;
+      ctx.font = `bold ${fontSize}px "Univers Light Ultra", "Univers", sans-serif`;
+      ctx.fillStyle = "white";
+      let textMetrics = ctx.measureText(word);
+      let textWidth = textMetrics.width;
+      let startX = (canvas.width - textWidth) / 2;
+      let startY = canvas.height / 2 + fontSize / 3;
+
+      // Create an offscreen canvas.
+      let offscreen = document.createElement("canvas");
+      offscreen.width = canvas.width;
+      offscreen.height = canvas.height;
+      let offCtx = offscreen.getContext("2d");
+      offCtx.font = ctx.font;
+      offCtx.fillStyle = "black";
+      offCtx.fillRect(0, 0, offscreen.width, offscreen.height);
+      offCtx.fillStyle = "white";
+      offCtx.fillText(word, startX, startY);
+
+      // Get pixel data.
+      let imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+      let data = imageData.data;
+
+      // Sample the offscreen image and draw stars where text pixels exist.
+      let sample = 6;
+      for (let y = 0; y < offscreen.height; y += sample) {
+        for (let x = 0; x < offscreen.width; x += sample) {
+          let index = (y * offscreen.width + x) * 4;
+          if (data[index] > 200 && data[index+1] > 200 && data[index+2] > 200) {
+            let starSize = Math.random() * 2 + 1;
+            ctx.beginPath();
+            ctx.arc(x, y, starSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+    }
+
+    // Regenerate story on any click.
     document.body.addEventListener("click", () => {
       if (wordsDict) displayStory();
     });
   </script>
 </body>
 </html>
-
