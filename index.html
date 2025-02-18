@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Wars Style Tracery Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracery/0.1.1/tracery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracery/0.1.1/tracery.min.js" defer></script>
     <style>
         body {
             background: black;
@@ -45,6 +45,15 @@
         let grammar;
         let isGrammarLoaded = false;
 
+        document.addEventListener("DOMContentLoaded", async function () {
+            if (typeof tracery === "undefined") {
+                console.error("Tracery.js failed to load. Check the script URL.");
+                document.querySelector("h2").innerText = "Error: Tracery.js did not load.";
+                return;
+            }
+            await fetchGrammar();
+        });
+
         async function fetchGrammar() {
             try {
                 const response = await fetch('https://raw.githubusercontent.com/jwoodall1/TextGenerator/main/grammar.json');
@@ -76,7 +85,6 @@
             setTimeout(() => paragraph.remove(), 10000); // Remove element after animation
         }
 
-        document.addEventListener("DOMContentLoaded", fetchGrammar);
         document.body.addEventListener("click", generateStory);
     </script>
 </body>
