@@ -46,8 +46,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: -1;
-      overflow: hidden;
+      z-index: 0; /* Updated from -1 so stars show up */
     }
     .star {
       position: absolute;
@@ -113,26 +112,29 @@
   </div>
 
   <script>
+    // Wait until the DOM content is loaded before creating the starfield.
+    document.addEventListener('DOMContentLoaded', () => {
+      createStarfield(150); // Create 150 stars for a richer starfield
+    });
+
     // Create a starfield by generating many star elements within the #starfield div.
     function createStarfield(numStars) {
       const starfield = document.getElementById('starfield');
       for (let i = 0; i < numStars; i++) {
         let star = document.createElement('div');
         star.className = 'star';
-        // Position stars randomly across the viewport
+        // Position stars randomly across the viewport using vw and vh units.
         star.style.left = Math.random() * 100 + 'vw';
         star.style.top = Math.random() * 100 + 'vh';
-        // Random size between 1px and 3px
+        // Set a random size between 1px and 3px.
         let size = Math.random() * 2 + 1;
         star.style.width = size + 'px';
         star.style.height = size + 'px';
-        // Random animation delay for variety
+        // Add a random animation delay for a natural twinkle effect.
         star.style.animationDelay = Math.random() * 5 + 's';
         starfield.appendChild(star);
       }
     }
-    // Create 100 stars (adjust this number to your liking)
-    createStarfield(100);
 
     // Global variable to hold the word categories loaded from JSON.
     let wordsDict = null;
@@ -247,3 +249,4 @@
   </script>
 </body>
 </html>
+
