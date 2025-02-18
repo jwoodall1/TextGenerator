@@ -44,33 +44,21 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 2px;
-      height: 2px;
-      background: white;
-      /* Each coordinate in the box-shadow is a star */
-      box-shadow: 
-        20px 30px white,
-        50px 80px white,
-        100px 150px white,
-        200px 250px white,
-        300px 100px white,
-        400px 300px white,
-        500px 350px white,
-        600px 200px white,
-        700px 400px white,
-        800px 150px white,
-        900px 300px white,
-        1000px 100px white,
-        1100px 350px white,
-        1200px 450px white,
-        1300px 250px white;
-      animation: moveStars 100s linear infinite;
-      opacity: 0.3;
+      width: 100%;
+      height: 100%;
       z-index: -1;
+      overflow: hidden;
     }
-    @keyframes moveStars {
-      from { transform: translateY(0); }
-      to { transform: translateY(-1000px); }
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: twinkle 2s infinite ease-in-out alternate;
+    }
+    @keyframes twinkle {
+      from { opacity: 0.2; }
+      to { opacity: 1; }
     }
     /* Container for the crawl text */
     #crawl {
@@ -125,11 +113,32 @@
   </div>
 
   <script>
+    // Create a starfield by generating many star elements within the #starfield div.
+    function createStarfield(numStars) {
+      const starfield = document.getElementById('starfield');
+      for (let i = 0; i < numStars; i++) {
+        let star = document.createElement('div');
+        star.className = 'star';
+        // Position stars randomly across the viewport
+        star.style.left = Math.random() * 100 + 'vw';
+        star.style.top = Math.random() * 100 + 'vh';
+        // Random size between 1px and 3px
+        let size = Math.random() * 2 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        // Random animation delay for variety
+        star.style.animationDelay = Math.random() * 5 + 's';
+        starfield.appendChild(star);
+      }
+    }
+    // Create 100 stars (adjust this number to your liking)
+    createStarfield(100);
+
     // Global variable to hold the word categories loaded from JSON.
     let wordsDict = null;
 
     // Load the categorized words from the external JSON file.
-    // Make sure the file 'categorized_words.json' is in the same directory.
+    // Make sure the file 'edited_categorized_words.json' is in the same directory.
     fetch('edited_categorized_words.json')
       .then(response => response.json())
       .then(data => {
