@@ -39,12 +39,46 @@
       color: #66ccff;
       text-decoration: none;
     }
+    /* Starfield background */
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 2px;
+      height: 2px;
+      background: white;
+      /* Each coordinate in the box-shadow is a star */
+      box-shadow: 
+        20px 30px white,
+        50px 80px white,
+        100px 150px white,
+        200px 250px white,
+        300px 100px white,
+        400px 300px white,
+        500px 350px white,
+        600px 200px white,
+        700px 400px white,
+        800px 150px white,
+        900px 300px white,
+        1000px 100px white,
+        1100px 350px white,
+        1200px 450px white,
+        1300px 250px white;
+      animation: moveStars 100s linear infinite;
+      opacity: 0.3;
+      z-index: -1;
+    }
+    @keyframes moveStars {
+      from { transform: translateY(0); }
+      to { transform: translateY(-1000px); }
+    }
     /* Container for the crawl text */
     #crawl {
       position: absolute;
       bottom: 0;
       width: 100%;
       perspective: 400px;
+      z-index: 5;
     }
     /* Inner content that will scroll upward */
     #crawlContent {
@@ -71,6 +105,9 @@
   </style>
 </head>
 <body>
+  <!-- Starfield Background -->
+  <div id="starfield"></div>
+  
   <!-- Header Section -->
   <header>
     <h1>Sci‑Fy Text Generator</h1>
@@ -88,17 +125,21 @@
   </div>
 
   <script>
-    // Categorized words (expand these lists as desired)
-    const wordsDict = {
-      nouns: ["planet", "star", "ship", "galaxy", "nebula", "asteroid", "satellite", "comet"],
-      proper_nouns: ["Nova", "Orion", "Celeste", "Andromeda", "Zephyr", "Luna", "Cosmos"],
-      verbs: ["drifts", "collides", "orbits", "vanishes", "emerges", "ascends", "descends", "pulsates"],
-      adjectives: ["mysterious", "radiant", "ancient", "luminous", "ethereal", "celestial", "vivid", "enigmatic"],
-      adverbs: ["silently", "swiftly", "gracefully", "unexpectedly", "solemnly", "quietly", "boldly"],
-      characters: ["Captain Nova", "Commander Orion", "Dr. Celeste", "Admiral Andromeda", "Pilot Zephyr"]
-    };
+    // Global variable to hold the word categories loaded from JSON.
+    let wordsDict = null;
 
-    // A collection of sci‑fi themed paragraph templates grouped by style.
+    // Load the categorized words from the external JSON file.
+    // Make sure the file 'categorized_words.json' is in the same directory.
+    fetch('categorized_words.json')
+      .then(response => response.json())
+      .then(data => {
+        wordsDict = data;
+        // Display an initial story once the words have loaded.
+        displayStory();
+      })
+      .catch(error => console.error('Error loading JSON:', error));
+
+    // Sci‑fi themed paragraph templates grouped by style.
     const storyTemplates = {
       narrative: [
         "In the #adjectives# reaches of the cosmos, a lone #nouns# #verbs# silently. #proper_nouns.capitalize# watched from afar, pondering the mysteries of the #adjectives# void.",
@@ -138,7 +179,7 @@
       ]
     };
 
-    // Utility function: pick a random element from an array
+    // Utility function: pick a random element from an array.
     function randomChoice(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
@@ -163,7 +204,7 @@
       });
     }
 
-    // Generate a story by randomly picking paragraphs from various styles
+    // Generate a story by randomly picking paragraphs from various styles.
     function generateStory(words, templates, numParagraphs = 8) {
       const paragraphs = [];
       const availableStyles = Object.keys(templates);
@@ -178,18 +219,22 @@
 
     // Generate and display the story with the crawl animation.
     function displayStory() {
+      // Ensure the JSON has been loaded.
+      if (!wordsDict) return;
       const story = generateStory(wordsDict, storyTemplates, 8);
       const crawlContent = document.getElementById("crawlContent");
       crawlContent.innerText = story;
       // Restart the animation: remove the animation property, force reflow, then add it back.
       crawlContent.style.animation = "none";
       void crawlContent.offsetWidth;
-      // Increased duration to 40 seconds for slower scrolling
+      // Increased duration to 40 seconds for slower scrolling.
       crawlContent.style.animation = "crawlAnimation 40s linear forwards";
     }
 
     // Trigger the story generation on any click anywhere on the screen.
-    document.body.addEventListener("click", displayStory);
+    document.body.addEventListener("click", () => {
+      if (wordsDict) displayStory();
+    });
   </script>
 </body>
 </html>
