@@ -253,12 +253,11 @@
       void crawlContent.offsetWidth;
       crawlContent.style.animation = "crawlAnimation 40s linear forwards";
       
-      // Extract the first word from the "nouns" category to form the star shape.
-      let starWord = "";
-      if (wordsDict.nouns && wordsDict.nouns.length > 0) {
-        starWord = wordsDict.nouns[0];
-      }
-      drawWordWithStars(starWord);
+      // Extract the first word from the generated scrolling story.
+      let firstWord = story.split(/\s+/)[0];
+      // Clean the word by removing punctuation.
+      firstWord = firstWord.replace(/[^a-zA-Z0-9-]/g, "");
+      drawWordWithStars(firstWord);
     }
 
     // Draw the given word on the canvas as a star pattern.
