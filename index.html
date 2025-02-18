@@ -24,7 +24,6 @@
             font-weight: bold;
             opacity: 1;
             animation: scroll-up 10s linear forwards;
-            transition: opacity 2s ease-out;
         }
         @keyframes scroll-up {
             0% {
@@ -43,39 +42,30 @@
     <script>
         async function loadGrammar() {
             try {
-                const response = await fetch('grammar.json'); 
+                const response = await fetch('grammar.json'); // Ensure grammar.json is in the root of your GitHub Pages repo
                 if (!response.ok) throw new Error("Failed to load grammar JSON");
                 const grammarData = await response.json();
-                if (!grammarData.origin) throw new Error("Grammar JSON missing 'origin' category");
-                console.log("Grammar loaded successfully.");
+                console.log("Grammar loaded:", grammarData);
                 return grammarData;
             } catch (error) {
                 console.error("Error loading JSON:", error);
-                alert("Failed to load story generator. Check grammar.json.");
                 return null;
             }
         }
 
-        function expandGrammar(sentence, grammar) {
-            let replaced = sentence;
-            let pattern = /#(.*?)#/g;
-            let match, changed = true;
-
-            // Loop to replace placeholders until none remain
-            while (changed) {
-                changed = false;
-                while ((match = replaced.match(pattern)) !== null) {
-                    match.forEach(fullMatch => {
-                        const key = fullMatch.replace(/#/g, '');
-                        if (grammar[key]) {
-                            replaced = replaced.replace(fullMatch, randomChoice(grammar[key]));
-                            changed = true;
-                        }
-                    });
+        function expandGrammar(text, grammar) {
+            if (!text) return "";
+            const pattern = /#(.*?)#/g;
+            return text.replace(pattern, (_, key) => {
+                if (grammar[key]) {
+                    return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
                 }
-            }
+                return `#${key}#`; // Preserve placeholders if key is missing
+            });
+        }
 
-            return replaced;
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
         }
 
         async function generateText(event) {
@@ -97,14 +87,10 @@
             setTimeout(() => paragraph.style.opacity = '0', 10000);
         }
 
-        function randomChoice(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
         document.addEventListener("DOMContentLoaded", () => {
-            console.log("Page loaded, waiting for clicks...");
             document.body.addEventListener("click", generateText);
         });
     </script>
 </body>
 </html>
+
