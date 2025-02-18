@@ -60,6 +60,9 @@ The **Sci-Fy Text Generator** is a web-based project that dynamically creates sc
 5. **Animated Starfield Background:**  
    A fixed `<div>` with a tiny white dot and multiple CSS `box-shadow` coordinates simulates a field of stars. A CSS animation moves these stars slightly upward, adding to the immersive space atmosphere.
 
+6. **dynamic visual or stylistic component:**
+  If you reload the page, the stars change their pattern.
+
 ## Recognitions
 
 The header in the project includes:
