@@ -53,7 +53,15 @@
         }
 
         function expandGrammar(text, grammar) {
-            if (!text) return "";
+    if (!text) return "";
+    const pattern = /#(.*?)#/g;
+    
+    return text.replace(pattern, (_, key) => {
+        if (grammar[key]) {
+            return expandGrammar(randomChoice(grammar[key]), grammar); // Recursively replace placeholders
+        }
+        return `#${key}#`; // Preserve placeholders if key is missing
+    });
             const pattern = /#(.*?)#/g;
             return text.replace(pattern, (_, key) => {
                 if (grammar[key]) {
