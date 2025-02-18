@@ -39,14 +39,18 @@
 </head>
 <body>
   <h2>Click anywhere to generate a story...</h2>
+  <!--
+    If your CSP is very strict about inline scripts, move the code below into an external file (e.g., app.js)
+    and reference it in a script tag with a proper nonce.
+  -->
   <script>
-    // Global variable to store the grammar.
+    // Global variable for storing the grammar data.
     let grammarData = null;
 
-    // Load the grammar JSON once on page load.
+    // Load grammar JSON once.
     async function loadGrammar() {
       try {
-        const response = await fetch('grammar.json'); // Ensure grammar.json is in your repo’s root.
+        const response = await fetch('grammar.json');
         if (!response.ok) throw new Error("Failed to load grammar JSON");
         const data = await response.json();
         console.log("Grammar loaded:", data);
@@ -57,26 +61,27 @@
       }
     }
 
-    // Returns a random element from an array.
+    // Return a random element from an array.
     function randomChoice(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    // Iteratively expand all tokens (e.g., #character#) in the text.
+    // Iteratively replace placeholders in the text.
     function expandGrammar(text, grammar) {
       let result = text;
       const pattern = /#(.*?)#/g;
-      let iteration = 0;
+      let iterations = 0;
       const maxIterations = 20; // safeguard against infinite loops
-      while (pattern.test(result) && iteration < maxIterations) {
+      while (pattern.test(result) && iterations < maxIterations) {
         result = result.replace(pattern, (match, key) => {
+          // If the key exists in the grammar, replace with a random selection.
           if (grammar[key]) {
             return randomChoice(grammar[key]);
           }
-          // Leave token unchanged if key is missing.
+          // Otherwise, leave the placeholder intact.
           return match;
         });
-        iteration++;
+        iterations++;
       }
       return result;
     }
@@ -90,22 +95,22 @@
       // Pick a random template from the "origin" category.
       const template = randomChoice(grammarData.origin);
       const output = expandGrammar(template, grammarData);
-      
-      // Create a div element for the generated text.
+
+      // Create and style the text element.
       const paragraph = document.createElement("div");
       paragraph.className = "scrolling-text";
       paragraph.style.left = `${event.clientX}px`;
       paragraph.style.top = `${event.clientY}px`;
       paragraph.innerText = output;
       document.body.appendChild(paragraph);
-      
-      // Remove the element after the animation completes (10 seconds).
+
+      // Remove the element after the animation ends (10 seconds).
       setTimeout(() => {
         paragraph.remove();
       }, 10000);
     }
 
-    // Load the grammar once the DOM is ready and attach the click handler.
+    // Once the DOM is loaded, fetch the grammar and set up the click handler.
     document.addEventListener("DOMContentLoaded", async () => {
       grammarData = await loadGrammar();
       if (!grammarData) {
